@@ -41,7 +41,7 @@ label {
 
 
 </style>
- <link rel="stylesheet" href="http://apps.neotomadb.org/dojo/1.10.4/dijit/themes/claro/claro.css"/>
+ <link rel="stylesheet" href="//apps.neotomadb.org/dojo/1.10.4/dijit/themes/claro/claro.css"/>
  <link rel="stylesheet" href="./stratigraphic.css" />
 
 
@@ -337,7 +337,7 @@ label {
 	}
 
 	function apiDownloadDataset(datasetid){
-		d3.json("http://api.neotomadb.org/v1/data/Downloads/"+datasetid+"?", handleResult);
+		d3.json("//api.neotomadb.org/v1/data/Downloads/"+datasetid+"?", handleResult);
 		//.mimeType("application/json")
 	    //.get(handleResult);
 	}
@@ -436,24 +436,24 @@ label {
 		var uri;
 		switch(datasettype){
 			case "pollen":
-				//uri = "http://api.neotomadb.org/v1/data/datasets?datasettype="+datasettype;
+				uri = "http://api.neotomadb.org/v1/data/datasets?datasettype="+datasettype;
 				//use static file
-				uri = "./pollen_datasetids.json"
+				//uri = "./pollen_datasetids.json"
 				break;
 			case "ostracode":
-				//uri = "http://api.neotomadb.org/v1/data/datasets?datasettype="+datasettype;
+				uri = "http://api.neotomadb.org/v1/data/datasets?datasettype="+datasettype;
 				//use static file
-				uri = "./ostracode_datasetids.json"
+				//uri = "./ostracode_datasetids.json"
 				break;
 			case "diatom":
-				//uri = "http://api.neotomadb.org/v1/data/datasets?datasettype="+datasettype;
+				uri = "http://api.neotomadb.org/v1/data/datasets?datasettype="+datasettype;
 				//use static file
-				uri = "./diatom_datasetids.json"
+				//uri = "./diatom_datasetids.json"
 				break;
 			case "vertebrate fauna":
-				//uri = "http://api.neotomadb.org/v1/data/datasets?datasettype="+datasettype;
+				uri = "http://api.neotomadb.org/v1/data/datasets?datasettype="+datasettype;
 				//use static file
-				uri = "./vertebratefauna_datasetids.json"
+				//uri = "./vertebratefauna_datasetids.json"
 				break;	
 			default:
 				uri = "";//"./diatoms_datasetids.json";
