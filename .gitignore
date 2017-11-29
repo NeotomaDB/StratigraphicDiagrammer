@@ -1,0 +1,7 @@
+dojo-release-1.10.4-src.zip
+.hgignore
+**/.hg
+/.hg/**
+/.hg/*
+*.zip
+uploads/*

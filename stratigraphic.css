@@ -1,0 +1,197 @@
+
+  body {
+    font-family: arial, sans;
+    font-size: 11px;
+   /*width:400px;*/
+    margin: 40px auto;
+    margin-left: 10px;
+  }
+
+  h1 {
+  }
+
+  svg {
+    border: 1px none #f0f;
+    clear: both;
+  }
+
+  .axis line,
+  .axis path {
+    fill: none;
+    stroke: black;
+    /*stroke: lightgrey; */
+    /*stroke-dasharray: 2px 3px;*/
+
+    shape-rendering: crispEdges;
+  }
+
+  /*axis border*/
+  .axis path.domain {
+    stroke: black;
+    stroke-dasharray: none;
+  }
+  /*yaxis baseline value*/
+  .y.axis .baseline {
+    stroke: red;
+    stroke-dasharray: none;
+  }
+  
+.area, .g-points {
+  stroke: #000000;
+  stroke-width: 1;
+  stroke-opacity: 0.5;
+}
+
+/* set area, symbol plot color based on EcoGroup */
+  .trsh, .TRSH {
+    fill: #877F13;
+    stroke: #000000;
+    stroke-width: 1;
+    stroke-opacity: 0.5;
+
+    /*fillHex = #737D26;*/
+          
+  }
+
+  .uphe, .UPHE {
+    fill: #C4A64D;
+    stroke: #000000;
+    stroke-width: 1;
+    stroke-opacity: 0.5;
+    /*fillHex = #A99E46;*/
+          
+  }
+
+  .vacr, .VACR {
+    fill: #BF3E21;
+    stroke: #000000;
+    stroke-width: 1;
+    stroke-opacity: 0.5;
+    /*fillHex = #3F522B;*/
+          
+  }
+  /*indigo*/
+  .bnth, .BNTH {
+    fill: #313695;
+    stroke: #000000;
+    stroke-width: 1;
+    stroke-opacity: 0.5;
+  }
+  /*purple*/
+  .nekt, .NEKT {
+    fill: #3f007d;
+    stroke: #000000;
+    stroke-width: 1;
+    stroke-opacity: 0.5;
+  }
+  /*purple*/
+  .diat, .DIAT {
+    fill: #EC7014;
+    stroke: #000000;
+    stroke-width: 1;
+    stroke-opacity: 0.5;
+    /*fillHex = #3F522B;*/
+  }
+
+  /*vertebrate fuana*/
+  /*set as declarative styles*/
+ 
+
+  /* set bar color*/
+  .rect {
+    stroke: none;
+  }
+  
+  .exaggerate-5x {
+    fill-opacity: 0.4;
+  }
+
+  div.tooltip {   
+    position: absolute;           
+    text-align: left;                             
+    padding: 2px;             
+    font: 12px sans-serif;        
+    background: white;   
+    border: 1px solid black;
+    /*
+    border: 0px;      
+    border-radius: 8px;           
+    */
+    pointer-events: none;         
+}
+
+.taxa-group {
+  float: left;
+  /*width: 80px;  */
+
+}
+
+h3 {
+  width: 100px;
+    text-align: center;
+    margin: 0 0 0 60px;
+    height: 20px;
+}
+
+.hdr_label_div {
+  overflow: hidden;
+}
+
+.top text,.bottom .even text {
+  display: none;
+}
+
+.x-axis-label {
+  clear:both;
+  width: 120px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-top: 10px;
+  font-size: 16px;
+}
+
+.y-axis-label {
+  text-anchor: middle;
+}
+
+.hide {
+  display: none;
+}
+
+#demo-label {
+    display: inline-block;
+    margin-left: 60px;
+}
+
+#left-col, #right-col {
+  float: left;
+}
+
+#right-col {
+  margin-left: 20px;
+}
+
+/*legend*/
+.legend {
+    height: 20px;
+    width: 20px;
+    padding: 5px;
+    margin: 5px;
+}
+
+.legend p {
+
+    padding-left: 30px;
+    vertical-align: middle;
+    height: 20px;
+    margin: 0;
+    line-height: 20px;
+    font-family: arial, sans-serif;
+}
+
+#label-site-dataset {
+  margin: 0 0 0 20px;
+  text-align: left;
+  width: 400px;
+}
+            
