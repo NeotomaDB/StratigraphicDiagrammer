@@ -1,5 +1,7 @@
+  
 
-  body {
+/*tester UI layout*/
+body {
     font-family: arial, sans;
     font-size: 11px;
    /*width:400px;*/
@@ -7,8 +9,45 @@
     margin-left: 10px;
   }
 
-  h1 {
-  }
+.control-row, .dataset-metadata,.diagram-heading {
+    margin: 5px 0 5px 20px;
+}
+
+#demo-controls-container {
+    display: inline-block;
+    margin-left: 60px;
+}
+
+label {
+    display: inline-block;
+    min-width: 89px;
+}
+
+#chartTypeForm label {
+    min-width: 30px;
+}
+
+.charts {
+    min-height: 462px;
+}
+
+.tooltip h3 {
+  margin: 0;
+  min-width: 200px;
+  text-align: left;
+}
+.control, .dataset-metadata {
+    margin: 5px 0 5px 20px;
+}
+
+.demo-controls-container {
+    display: block;
+    margin-left: 20px;
+}
+
+
+
+
 
   svg {
     border: 1px none #f0f;
