@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
 
- <link rel="stylesheet" href="http://apps.neotomadb.org/dojo/1.10.4/dijit/themes/claro/claro.css"/>
+ <link rel="stylesheet" href="./js/dojo-release-1.10.4-src/dijit/themes/claro/claro.css"/>
  <link rel="stylesheet" href="./stratigraphic.css" />
 
 
@@ -118,7 +118,7 @@
     };      
 </script> 
 
-<script src="//apps.neotomadb.org/dojo/1.10.4/dojo/dojo.js"></script>
+<script src="./js/dojo-release-1.10.4-src/dojo/dojo.js"></script>
 
 <script src="./js/sd-data-retrieval.js" ></script>
 <script src="./js/sd-tester-ui.js" ></script>
@@ -293,7 +293,7 @@
 	}
 
 	function apiDownloadDataset(datasetid){
-		d3.json("http://api.neotomadb.org/v1/data/Downloads/"+datasetid+"?", handleResult);
+		d3.json("https://wnapi.neotomadb.org/v1/data/Downloads/"+datasetid+"?", handleResult);
 		//.mimeType("application/json")
 	    //.get(handleResult);
 	}

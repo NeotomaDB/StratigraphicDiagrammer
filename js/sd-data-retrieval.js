@@ -11,22 +11,22 @@
 		var uri;
 		switch(datasettype){
 			case "pollen":
-				//uri = "http://api.neotomadb.org/v1/data/datasets?datasettype="+datasettype;
+				//uri = "http://wnapi.neotomadb.org/v1/data/datasets?datasettype="+datasettype;
 				//use static file
 				uri = "./pollen_datasetids.json"
 				break;
 			case "ostracode":
-				//uri = "http://api.neotomadb.org/v1/data/datasets?datasettype="+datasettype;
+				//uri = "http://wnapi.neotomadb.org/v1/data/datasets?datasettype="+datasettype;
 				//use static file
 				uri = "./ostracode_datasetids.json"
 				break;
 			case "diatom":
-				//uri = "http://api.neotomadb.org/v1/data/datasets?datasettype="+datasettype;
+				//uri = "http://wnapi.neotomadb.org/v1/data/datasets?datasettype="+datasettype;
 				//use static file
 				uri = "./diatom_datasetids.json"
 				break;
 			case "vertebrate fauna":
-				//uri = "http://api.neotomadb.org/v1/data/datasets?datasettype="+datasettype;
+				//uri = "http://wnapi.neotomadb.org/v1/data/datasets?datasettype="+datasettype;
 				//use static file
 				uri = "./vertebratefauna_datasetids.json"
 				break;	
@@ -35,7 +35,7 @@
 				break;
 		}
 		 // get data for datasetid
-                //xhr.get("http://api.neotomadb.org/v1/data/datasets?datasettype=pollen",
+                //xhr.get("http://wnapi.neotomadb.org/v1/data/datasets?datasettype=pollen",
                 //xhr.get("./diatoms_datasetids.json",  
                 console.log("current dataset request: "+uri);
                 xhr.get(uri,
@@ -89,22 +89,22 @@
 		var uri;
 		switch(datasettype){
 			case "pollen":
-				//uri = "http://api.neotomadb.org/v1/data/datasets?datasettype="+datasettype;
+				//uri = "http://wnapi.neotomadb.org/v1/data/datasets?datasettype="+datasettype;
 				//use static file
 				uri = "./pollen_datasetids.json"
 				break;
 			case "ostracode":
-				//uri = "http://api.neotomadb.org/v1/data/datasets?datasettype="+datasettype;
+				//uri = "http://wnapi.neotomadb.org/v1/data/datasets?datasettype="+datasettype;
 				//use static file
 				uri = "./ostracode_datasetids.json"
 				break;
 			case "diatom":
-				//uri = "http://api.neotomadb.org/v1/data/datasets?datasettype="+datasettype;
+				//uri = "http://wnapi.neotomadb.org/v1/data/datasets?datasettype="+datasettype;
 				//use static file
 				uri = "./diatom_datasetids.json"
 				break;
 			case "vertebrate fauna":
-				//uri = "http://api.neotomadb.org/v1/data/datasets?datasettype="+datasettype;
+				//uri = "http://wnapi.neotomadb.org/v1/data/datasets?datasettype="+datasettype;
 				//use static file
 				uri = "./vertebratefauna_datasetids.json"
 				break;	
@@ -113,7 +113,7 @@
 				break;
 		}
 		 // get data for datasetid
-                //xhr.get("http://api.neotomadb.org/v1/data/datasets?datasettype=pollen",
+                //xhr.get("http://wnapi.neotomadb.org/v1/data/datasets?datasettype=pollen",
                 //xhr.get("./diatoms_datasetids.json",  
                 console.log("current dataset request: "+uri);
                 xhr.get(uri,

@@ -1,4 +1,6 @@
 dojo-release-1.10.4-src.zip
+js/dojo-release-1.10.4-src/*
+*.json
 .hgignore
 **/.hg
 /.hg/**
