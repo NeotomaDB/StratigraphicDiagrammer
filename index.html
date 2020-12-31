@@ -48,7 +48,7 @@
 	</div>
 	<div class="control-row">
 		<label for="fsVariableUnit">Variable Unit:</label>
-		<select data-dojo-type="dijit/form/FilteringSelect" id="fsVariableUnits" data-dojo-props="searchAttr:'VariableUnits', placeHolder:'select variable units', autoComplete: true, required: false"></select>
+		<select data-dojo-type="dijit/form/FilteringSelect" id="fsVariableUnits" data-dojo-props="searchAttr:'variableunits', placeHolder:'select variable units', autoComplete: true, required: false"></select>
 	</div>
 
 	<div class="control-row">
@@ -69,21 +69,21 @@
 	<div class="control-row">
 		<div data-dojo-type="dojo/store/Memory"
 		    data-dojo-id="yAxisStore"
-		    data-dojo-props="data: [{DomainName: 'Depth', ChronologyID: null, UnitType: 'Depth' }]">
+		    data-dojo-props="data: [{domainname: 'Depth', chronologyid: null, unittype: 'Depth' }]">
 		</div>
 		<label for="fsSelectYaxis">Y Axis: </label>
-		<div data-dojo-type="dijit/form/FilteringSelect" id="fsSelectYAxis" data-dojo-props="searchAttr: 'DomainName', placeHolder:'select y axis domain', promptMessage: 'Type or select chronology or depth'">
+		<div data-dojo-type="dijit/form/FilteringSelect" id="fsSelectYAxis" data-dojo-props="searchAttr: 'domainname', placeHolder:'select y axis domain', promptMessage: 'Type or select chronology or depth'">
 		</div>
 	</div>
 
 	<div class="control-row">
 		<label for="chartTypeForm">Select Chart Type:</label>
 		<form id="chartTypeForm" style="display:inline;" name="chartTypeForm" >
-			<input data-dojo-type="dijit/form/RadioButton" name="chartTypeRadioButtons" data-lpignore="true" id="radioFilledArea" name="chartType" value="FilledArea" >
+			<input data-dojo-type="dijit/form/RadioButton" class="chartRadio" name="chartTypeRadioButtons" data-lpignore="true" id="radioFilledArea" name="chartType" value="FilledArea" >
 			<label for="radioFilledArea">Filled Area</label>
-			<input data-dojo-type="dijit/form/RadioButton" name="chartTypeRadioButtons" data-lpignore="true"  id="radioBarChart" name="chartType" value="BarChart">
+			<input data-dojo-type="dijit/form/RadioButton" class="chartRadio"  name="chartTypeRadioButtons" data-lpignore="true"  id="radioBarChart" name="chartType" value="BarChart">
 			<label for="radioBarChart">Bar Chart</label>
-			<input data-dojo-type="dijit/form/RadioButton" name="chartTypeRadioButtons" data-lpignore="true"  id="radioSymbolPlot" name="chartType" value="SymbolPlot">
+			<input data-dojo-type="dijit/form/RadioButton" class="chartRadio"  name="chartTypeRadioButtons" data-lpignore="true"  id="radioSymbolPlot" name="chartType" value="SymbolPlot">
 			<label for="radioSymbolPlot">Symbol Plot</label>
 		</form>
 	</div>
@@ -292,8 +292,9 @@
     	});
 	}
 
+	var apiURL = "//localhost:3010/v1.5/data/Downloads/"
 	function apiDownloadDataset(datasetid){
-		d3.json("https://wnapi.neotomadb.org/v1/data/Downloads/"+datasetid+"?", handleResult);
+		d3.json(apiURL+datasetid+"?", handleResult);
 		//.mimeType("application/json")
 	    //.get(handleResult);
 	}
@@ -341,7 +342,7 @@
 
 	function updateChartTitle(dataset){
 		var h3 = d3.select("#label-site-dataset")
-			.html("Site: "+dataset.Site.SiteName+" | DatasetID: "+dataset.DatasetID);
+			.html("Site: "+dataset.site.sitename+" | DatasetID: "+dataset.datasetid);
 	}
 
 	function handleResult(err, result){
@@ -352,7 +353,12 @@
 			return;
 		}
 
-		var dataset = result.data[0];//.response;
+		if ( !result.data ){
+			console.log("Response has no data");
+			return;
+		} else {
+			var dataset = result.data[0];//.response;
+		}
 
 		updateChartTitle(dataset);
 
@@ -364,10 +370,10 @@
 
 				updateYAxisFilteringSelect();
 				//set yscale
-				setYLookupFunction(metadata.yAxisDomainName);//or with defChronolgyID get defChronologyName
+				setYLookupFunction(metadata.yaxisdomainname);//or with defChronolgyID get defChronologyName
 				
 								
-				updateVariableUnitFilteringSelect(metadata.allVarUnits);
+				updateVariableUnitFilteringSelect(metadata.allvarunits);
 				//set var. unit fs
 				updateVariableUnitUI();
 
@@ -376,7 +382,7 @@
 
 
 					//create renderObjects
-					taxaRenderObjects = createTaxaObjectsToRenderAsChart(metadata.variableUnit);
+					taxaRenderObjects = createTaxaObjectsToRenderAsChart(metadata.variableunit);
 					
 					//prepareUI callback
 					sortedtaxaRenderObjects = sortFilterData(taxaRenderObjects);
@@ -392,7 +398,7 @@
 
 	function updateChart(){
 		//case#1: VariableUnit changes
-		taxaRenderObjects = createTaxaObjectsToRenderAsChart(metadata.variableUnit);
+		taxaRenderObjects = createTaxaObjectsToRenderAsChart(metadata.variableunit);
 		
 		//prepareUI callback
 		sortedtaxaRenderObjects = sortFilterData(taxaRenderObjects);
@@ -404,12 +410,12 @@
 
 	//programmatically update Var.Unit UI
 	function updateVariableUnitUI(){
-		if(metadata.variableUnit){
+		if(metadata.variableunit){
 			//prevent handler from reponsding to FS change event
 			handlerChangeVariableUnit.remove();
 			require(["dijit/registry","dojo/on"],function(registry,on){
 				var fsVU = registry.byId("fsVariableUnits");
-				fsVU.set("value",metadata.variableUnit);
+				fsVU.set("value",metadata.variableunit);
 
 				//enable fs change handler
 				handlerChangeVariableUnit = on(fsVU, "change", handleVariableUnitChange);
@@ -428,30 +434,30 @@
 			var ageDepthStore = [];
 
 			ageCollection.forEach(function(d){
-				if(!d.ValidAge){
+				if(!d.validage){
 					//omit from fs; can't use
 					return;
 				}
 				var storeObj = {};
-				storeObj.ChronologyID = d.ChronologyID;
-				storeObj.DomainName = d.ChronologyName;
-				storeObj.UnitType = "Age";
+				storeObj.chronologyid = d.chronologyid;
+				storeObj.domainname = d.chronologyname;
+				storeObj.unittype = "Age";
 				ageDepthStore.push(storeObj);
 			})
 
 			//create depth store object if Depth values exist
 			//some fauna have no depth
-			if(metadata.depthCollection.DepthExtent[0]){
+			if(metadata.depthcollection.depthextent[0]){
 				var storeObj = {};
-				storeObj.ChronologyID = null;
-				storeObj.DomainName = "Depth";
-				storeObj.UnitType = "Depth";
+				storeObj.chronologyid = null;
+				storeObj.domainname = "Depth";
+				storeObj.unittype = "Depth";
 				ageDepthStore.push(storeObj);
 			}
 
 			//update memory with newly created ageCollection
 			
-			yAxisStore = new Memory({data: ageDepthStore, idProperty: "DomainName"});
+			yAxisStore = new Memory({data: ageDepthStore, idProperty: "domainname"});
 
 			yaxisfs.set("store", yAxisStore);
 
@@ -478,21 +484,21 @@
 		var filteredDataset = [];
 		var filteredSamples = [];
 		
-		var filteredSamples = dataset.Samples;
+		var filteredSamples = dataset.samples;
 
 		filteredSamples.forEach(function(d){
 			var filteredSampleData = [];
-			filteredSampleData = d.SampleData.filter(function(e){
-				return includeEcolGroupIDs.indexOf(e.EcolGroupID) > -1;
+			filteredSampleData = d.sampledata.filter(function(e){
+				return includeEcolGroupIDs.indexOf(e.ecolgroupid) > -1;
 			})
-			d.SampleData = filteredSampleData;
+			d.sampledata = filteredSampleData;
 
 		});
 
 		//variables byRef so can simpley return dataset as altered object; filteredSamples and dataset.Samples reference the same object
 		filteredDataset = dataset;
 
-		filteredDataset.Samples = filteredSamples;
+		filteredDataset.samples = filteredSamples;
 
 
 
@@ -509,19 +515,19 @@
 		* dataset.DatasetType
 		*/
 		metadata = {};
-		metadata.datasetType = dataset.DatasetType;
-		metadata.chartTypeSelection = null;
-		metadata.yAxisDomainName = null;
-		metadata.yAxisLabel = null;
-		metadata.yAxisUnitType = null;
-		metadata.yAxisDomainExtent = [];
-		metadata.yAxisAgeLookupFunction = null;
-		metadata.currentTopX = 10;
-		setMetaData("DefChronologyID", dataset.DefChronologyID);
+		metadata.datasettype = dataset.datasettype;
+		metadata.charttypeselection = "FilledArea";
+		metadata.yaxisdomainname = null;
+		metadata.yaxislabel = null;
+		metadata.yaxisunittype = null;
+		metadata.yaxisdomainextent = [];
+		metadata.yaxisagelookupfunction = null;
+		metadata.currenttopx = 10;
+		setMetaData("defchronologyid", dataset.defchronologyid);
 		//metadata.DefChrongologyID = dataset.DefChronologyID;
 
 		//filter for EcolGroupID(s) of interest
-		switch(metadata.datasetType){
+		switch(metadata.datasettype){
 			case "pollen":
 				//currently include only UPHE, TRSH, VACR
 				dataset = pollenEcolGroupIDFilter(dataset);
@@ -539,33 +545,33 @@
 		
 
 		//get set of unique SampleID values
-		var SampleIDs = d3.set(dataset.Samples, function(d){
-			return "S"+d.SampleID;
+		var SampleIDs = d3.set(dataset.samples, function(d){
+			return "s"+d.sampleid;
 		}).values();
 
 		//create map of SampleID, Depth
 		var sampleDepths;
 		sampleDepths = d3.map();
-		dataset.Samples.forEach(function(d){
-			sampleDepths.set("S"+d.SampleID, d.AnalysisUnitDepth);
+		dataset.samples.forEach(function(d){
+			sampleDepths.set("s"+d.sampleid, d.analysisunitdepth);
 		});
 		var depthExtent;
 		depthExtent = d3.extent(sampleDepths.values());
 		var depthCollection = {};
-    	depthCollection.DepthExtent = depthExtent;
-    	depthCollection.DepthLookup = sampleDepths;
-    	depthCollection.Units = "cm";
-    	metadata.depthCollection = depthCollection;
+    	depthCollection.depthextent = depthExtent;
+    	depthCollection.depthlookup = sampleDepths;
+    	depthCollection.units = "cm";
+    	metadata.depthcollection = depthCollection;
 
 		//create ageCollection of SampleID, Age maps for each chronology
 		ageCollection = [];
-		dataset.Samples[0].SampleAges.forEach(function(d){
+		dataset.samples[0].sampleages.forEach(function(d){
 			var ageObj = {};
-			ageObj.AgeType = d.AgeType;
-			ageObj.ChronologyID = d.ChronologyID;
-			ageObj.ChronologyName = d.ChronologyName;
-			ageObj.AgeExtent = [];
-			ageObj.AgeLookup = d3.map();
+			ageObj.agetype = d.agetype;
+			ageObj.chronologyid = d.chronologyid;
+			ageObj.chronologyname = d.chronologyname;
+			ageObj.ageextent = [];
+			ageObj.agelookup = d3.map();
 			ageCollection.push(ageObj);
 		});
 
@@ -574,23 +580,23 @@
 		//{}8 properties: TaxonName, VariableUnits, VariableElement, VariableContext, TaxaGroup, Value, EcolGroupID, + SampleID
 		sampleData = [];
 		var ageData = [];
-		dataset.Samples.forEach(function(d,i){
-			var theSampleID = "S"+d.SampleID;
+		dataset.samples.forEach(function(d,i){
+			var theSampleID = "s"+d.sampleid;
 
-			d.SampleData.forEach(function(e,j){
-				e.SampleID = theSampleID;
+			d.sampledata.forEach(function(e,j){
+				e.sampleid = theSampleID;
 			})
-			d.SampleAges.forEach(function(f,k){
-				f.SampleID = theSampleID;
+			d.sampleages.forEach(function(f,k){
+				f.sampleid = theSampleID;
 			})
-			sampleData = sampleData.concat(d.SampleData);
-			ageData = ageData.concat(d.SampleAges);
+			sampleData = sampleData.concat(d.sampledata);
+			ageData = ageData.concat(d.sampleages);
 		})
 
 		//extract unique values for VariableUnits, TaxonName, EcolGroupID 
 		var allVarUnits = [];
-		allVarUnits = d3.set(sampleData,function(d){return d.VariableUnits}).values();
-		metadata.allVarUnits = allVarUnits;
+		allVarUnits = d3.set(sampleData,function(d){return d.variableunits}).values();
+		metadata.allvarunits = allVarUnits;
 
 		/**Set Defaults: round 1 
 		variableUnit, chartType, topX, genusGrouping
@@ -600,68 +606,68 @@
 		//setDefaultChartType();
 
 		var allTaxaNames = [];
-		allTaxaNames = d3.set(sampleData,function(d){return d.TaxonName}).values();
-		metadata.allTaxaNames = allTaxaNames; 
+		allTaxaNames = d3.set(sampleData,function(d){return d.taxonname}).values();
+		metadata.alltaxanames = allTaxaNames; 
 
-		metadata.allEcolGroupIDs = d3.set(sampleData,function(d){return d.EcolGroupID}).values();
+		metadata.allecolgroupids = d3.set(sampleData,function(d){return d.ecolgroupid}).values();
 
 		//all possible y axis scales {Depth, ChronID#1, ChronID#2, ...}
 		ageCollection.forEach(function(d){
-			var theAge = d.ChronologyID;
+			var theAge = d.chronologyid;
 			var sampleAges = d3.map();
 			var currentAgeData = ageData.filter(function(e){
-				return e.ChronologyID = theAge;
+				return e.chronologyid = theAge;
 			})
 			currentAgeData.forEach(function(f){
 				//sampleAges.set(d.SampleID, d.Age);
 				//test vertebrate fauna w/ only youngestAge, oldestAge
 				var ageObj = {};
-				ageObj.AgeYounger = f.AgeYounger;
-				ageObj.Age = f.Age;
-				ageObj.AgeOlder = f.AgeOlder;
-				ageObj.AgeMean = null;
-				if(f.AgeYounger != NaN && f.AgeOlder != NaN){
-					ageObj.AgeMean = (f.AgeYounger + f.AgeOlder)/2;
+				ageObj.ageyounger = f.ageyounger;
+				ageObj.age = f.age;
+				ageObj.ageolder = f.ageolder;
+				ageObj.agemean = null;
+				if(f.ageyounger != NaN && f.ageolder != NaN){
+					ageObj.agemean = (f.ageyounger + f.ageolder)/2;
 				}
 			
-				sampleAges.set(f.SampleID, ageObj);
+				sampleAges.set(f.sampleid, ageObj);
 			});
 			//any of the age values may be null
 			var arrAllAgeValues = [];
 			
 			sampleAges.each(function(g){
-				arrAllAgeValues.push(g.AgeYounger);
-				arrAllAgeValues.push(g.Age);
-				arrAllAgeValues.push(g.AgeOlder);
+				arrAllAgeValues.push(g.ageyounger);
+				arrAllAgeValues.push(g.age);
+				arrAllAgeValues.push(g.ageolder);
 			})
 			var ageExtent = d3.extent(arrAllAgeValues);
 			
-			d.AgeLookup = sampleAges;
-			d.AgeExtent = ageExtent;
+			d.agelookup = sampleAges;
+			d.ageextent = ageExtent;
 
 			//test always true
-			d.ValidAge = true;
+			d.validage = true;
 			//validate AgeExtent
-			if ((d.AgeExtent[1] - d.AgeExtent[0]) >= 0){
-				d.ValidAge = true
+			if ((d.ageextent[1] - d.ageextent[0]) >= 0){
+				d.validage = true
 			} 
 
-			if (d.AgeExtent[0] == null || d.AgeExtent[1] == null){
-				d.ValidAge = false;
+			if (d.ageextent[0] == null || d.ageextent[1] == null){
+				d.validage = false;
 			}
 		})
 
-		metadata.ageCollection = ageCollection;
+		metadata.agecollection = ageCollection;
 
 		//set initial yLookupFunction
-		if(metadata.ageCollection[0].ValidAge){
-			metadata.yAxisAgeLookupFunction = metadata.ageCollection[0].AgeLookup;
-			metadata.yAxisDomainName = metadata.ageCollection[0].ChronologyName;
-			metadata.yAxisUnitType = "Age";
+		if(metadata.agecollection[0].ValidAge){
+			metadata.yaxisagelookupfunction = metadata.agecollection[0].agelookup;
+			metadata.yaxisdomainname = metadata.agecollection[0].chronologyname;
+			metadata.yaxisunittype = "Age";
 		} else {
-			metadata.yAxisAgeLookupFunction = metadata.depthCollection.DepthLookup;
-			metadata.yAxisDomainName = "Depth";
-			metadata.yAxisUnitType = "Depth";
+			metadata.yaxisagelookupfunction = metadata.depthcollection.depthlookup;
+			metadata.yaxisdomainname = "Depth";
+			metadata.yaxisunittype = "Depth";
 		}
 
 		//todo add getter/setter for ageCollection
@@ -672,10 +678,10 @@
 		//get summary stats by SampleID for topX selection, abundance calculation
 		var dataBySampleID = d3.nest()
 			.key(function(d){
-				return d.SampleID;
+				return d.sampleid;
 			})
 			.key(function(d){
-				return d.VariableUnits;
+				return d.variableunits;
 			})
 			//.rollup(function(values){
 			//	return {
@@ -686,38 +692,38 @@
 
 		summaryDataBySampleID = d3.nest()
 			.key(function(d){
-				return d.SampleID;
+				return d.sampleid;
 			})
 			.key(function(d){
-				return d.VariableUnits;
+				return d.variableunits;
 			})
 			.rollup(function(values){
-				var currentKey = values[0].VariableUnits;//JSON.stringify(values);
+				var currentKey = values[0].variableunits;//JSON.stringify(values);
 				switch(currentKey){
 					case "NISP":
 						return {
-							sumNISP: d3.sum(values, function(d){ return d.Value}),
-							countTaxa: values.length
+							sumnisp: d3.sum(values, function(d){ return d.value}),
+							counttaxa: values.length
 						}
 						break;
 					case "valves/g":
 						return {
-						meanConcentration: d3.mean(values, function(d){ return d.Value})
+						meanconcentration: d3.mean(values, function(d){ return d.value})
 						}
 						break;
 					case "MNI":
 						return {
-							sumMNI: d3.sum(values, function(d){ return d.Value})
+							summni: d3.sum(values, function(d){ return d.value})
 						}
 						break;
 					case "present/absent":
 						return {
-							countTaxa: values.length
+							counttaxa: values.length
 						}
 						break;
 					default:
 						return {
-							countTaxa: values.length
+							counttaxa: values.length
 						}
 						break;
 				}
@@ -735,7 +741,7 @@
 		abundTaxaRenderObjects = srcTaxaRenderObjects.sort(sortAbundanceDesc);
 
 		//then by Age within taxa value collections if not showing depth
-		if(metadata.yAxisUnitType == "Age"){
+		if(metadata.yaxisunittype == "Age"){
 			abundTaxaRenderObjects.forEach(function(d){
 				var vals = d.values;
 				var sortedValues = vals.sort(sortByAgeYounger);
@@ -743,13 +749,13 @@
 			})
 		}
 
-		var topXtaxaRenderObjects = filterForTopX(abundTaxaRenderObjects, metadata.currentTopX);
+		var topXtaxaRenderObjects = filterForTopX(abundTaxaRenderObjects, metadata.currenttopx);
 		//createEcolGroupRenderObjects()
-		var bottomNtaxaRenderObjects = filterForBottomN(abundTaxaRenderObjects, metadata.currentTopX);
+		var bottomNtaxaRenderObjects = filterForBottomN(abundTaxaRenderObjects, metadata.currenttopx);
 		//group bottomN by EcolGroupID
 		//see Line 655
 		//var groupedTaxa = groupByEcolGroupID(bottomNtaxaRenderObjects, "NISP");
-		var groupedTaxa = groupByEcolGroupID(bottomNtaxaRenderObjects, metadata.variableUnit);
+		var groupedTaxa = groupByEcolGroupID(bottomNtaxaRenderObjects, metadata.variableunit);
 
 		var sortedtaxaRenderObjects = topXtaxaRenderObjects.sort(sortEcolGroupThenTaxonName);	
 		//append grouped data to taxa data
@@ -765,23 +771,23 @@
 	}
 
 	function sortSampleID(a,b){
-		var x = +a.SampleID.substr(1,a.SampleID.length);
-        var y = +b.SampleID.substr(1,b.SampleID.length);
+		var x = +a.sampleid.substr(1,a.sampleid.length);
+        var y = +b.sampleid.substr(1,b.sampleid.length);
         return x - y;
 	}
 
 	function sortByAgeYounger(a,b){
 		//get AgeYounger
-		var x = lookupYValueBySampleID(a.SampleID);
-		var y = lookupYValueBySampleID(b.SampleID);
+		var x = lookupYValueBySampleID(a.sampleid);
+		var y = lookupYValueBySampleID(b.sampleid);
 
         return x - y;
 	}
 
 	//sort by maxAbundance
 	function sortAbundanceDesc(a,b){
-        var x = a.maxAbundance;
-        var y = b.maxAbundance;
+        var x = a.maxabundance;
+        var y = b.maxabundance;
         return x < y ? 1 : x > y ? -1 : 0;
     }
 	//get key: , maxAbundance
@@ -803,23 +809,23 @@
 	
 	//sort again by EcolGroupID, then TaxonName
 	function sortEcolGroupThenTaxonName(a,b){
-        if(a.EcolGroupID == b.EcolGroupID){
+        if(a.ecolgroupid == b.ecolgroupid){
             var x = a.key;
             var y = b.key;
 
             return x < y ? -1 : x > y ? 1 : 0;
         }
-        var x = a.EcolGroupID;
-        var y = b.EcolGroupID;
+        var x = a.ecolgroupid;
+        var y = b.ecolgroupid;
         return x < y ? -1 : x > y ? 1 : 0;
     }
 
     function groupByEcolGroupID(theArray, variableUnit){
     	//for each allEcolGrooupIDs[]
     	var ecoGrpRenderObjects = [];
-    	metadata.allEcolGroupIDs.forEach(function(d){
+    	metadata.allecolgroupids.forEach(function(d){
     		var obj = {};
-    		obj.EcolGroupID = d;
+    		obj.ecolgroupid = d;
     		obj.values = [];
     		ecoGrpRenderObjects.push(obj); 
     	});
@@ -827,7 +833,7 @@
     	//for each groupID, get all samples, aggregate by SampleID
     	ecoGrpRenderObjects.forEach(function(d){
     		var filteredByEcoGrp = theArray.filter(function(e){
-    			return e.EcolGroupID === d.EcolGroupID;
+    			return e.ecolgroupid === d.ecolgroupid;
     		})
     		//append all values objects to EcolGroup collection
     		filteredByEcoGrp.forEach(function(f){
@@ -863,30 +869,30 @@
     	ecoGrpRenderObjects.forEach(function(d){
     		//for each EcolGroupID, total values by SampleID across all taxa
     		var nest = d3.nest().key(function(e){ 
-    			return e.SampleID })
+    			return e.sampleid })
     		.rollup(function(values){
     			return { 
     				//sum of values across taxa within shared EcolGroupID at SampleID
     				totalValue: d3.sum(values, function(f){
-    					return f.Value})
+    					return f.value})
     			}
     		})
     		.map(d.values);
     		
     		//for each EcolGroupID, generate a display object aggregating properties for each SampleID	 
-    		d.key = "Other "+d.EcolGroupID;
+    		d.key = "Other "+d.ecolgroupid;
     		d.values = [];
     		nest.each(function(value, key){
     			var obj = {}
-    			obj.SampleID = key;
+    			obj.sampleid = key;
     			//compare to value at SampleID in summaryDataBySampleID
     			var sampleAggregate = getSampleAggregateByVariableUnit(key,value.totalValue);
     			if(sampleAggregate){
-    				obj.Value = sampleAggregate;
+    				obj.value = sampleAggregate;
     			} else {
-    				obj.Value = null;
+    				obj.value = null;
     			}    			
-    			obj.EcolGroupID = d.EcolGroupID;
+    			obj.ecolgroupid = d.ecolgroupid;
     			d.values.push(obj);
     		});
 
@@ -900,25 +906,25 @@
     	//now calc relative abundance
     	ecoGrpRenderObjects.forEach(function(d){
     		d.values.forEach(function(e){
-	    		e.Abundance = (e.Value/summaryDataBySampleID.get(e.SampleID).get(variableUnit).sumNISP)*100;
+	    		e.abundance = (e.value/summaryDataBySampleID.get(e.sampleid).get(variableUnit).sumnisp)*100;
     		})
     		var abundanceExtent = d3.extent(d.values,function(f){
-    			return f.Abundance;
+    			return f.abundance;
     		});
     		var valueExtent = d3.extent(d.values, function(f){
-    			return f.Value;
+    			return f.value;
     		})
     		if(abundanceExtent){
-    			d.maxAbundance = abundanceExtent[1];
+    			d.maxabundance = abundanceExtent[1];
     		} else {
     			console.log("Error calculating maxAbundance");
-    			d.maxAbundance = 0;
+    			d.maxabundance = 0;
     		}
     		if(valueExtent){
-    			d.maxValue = valueExtent[1];
+    			d.maxvalue = valueExtent[1];
     		} else {
     			console.log("Error calculating maxValue");
-    			d.maxValue = 0;
+    			d.maxvalue = 0;
     		}
     	})
 
@@ -946,16 +952,16 @@
 
     //given current VariableUnit, how should EcolGroupID aggregated sample values be presented?
     function getSampleAggregateByVariableUnit(sampleid, value){
-    	var currentVariableUnit = metadata.variableUnit;
+    	var currentVariableUnit = metadata.variableunit;
     	var aggValue = null;
     	switch(currentVariableUnit){
     		case "NISP":
-    			if(summaryDataBySampleID.get(sampleid).get(currentVariableUnit).sumNISP > 0){
-    				aggValue = (value/summaryDataBySampleID.get(sampleid).get(currentVariableUnit).sumNISP) * 100;
+    			if(summaryDataBySampleID.get(sampleid).get(currentVariableUnit).sumnisp > 0){
+    				aggValue = (value/summaryDataBySampleID.get(sampleid).get(currentVariableUnit).sumnisp) * 100;
     			}
     			break;
     		case "MNI":
-    		    aggValue = value;//summaryDataBySampleID.get(sampleid).get(currentVariableUnit).sumMNI;
+    		    aggValue = value;//summaryDataBySampleID.get(sampleid).get(currentVariableUnit).summni;
     		    break;
     		case "present/absent":
     			aggValue = value;//summaryDataBySampleID.get(sampleid).get(currentVariableUnit).present;
@@ -990,12 +996,12 @@
 			2. calc abundance value
 		*/
 		var varUnitFilteredSamples = sampleData.filter(function(d){
-			return d.VariableUnits == variableUnit;
+			return d.variableunits == variableUnit;
 		})
 
 		var filteredTaxaRenderObjects = d3.nest()
 			.key(function(d){
-				return d.TaxonName
+				return d.taxonname
 			})
 			.entries(varUnitFilteredSamples);
 
@@ -1004,30 +1010,30 @@
 			case "NISP":
 				filteredTaxaRenderObjects.forEach(function(d){
 					//calc maxAbundance for Taxon
-					d.maxAbundance = 0;
+					d.maxabundance = 0;
 					//pass EcolGroupID to container
-					d.EcolGroupID = d.values[0].EcolGroupID;
+					d.ecolgroupid = d.values[0].ecolgroupid;
 					d.values.forEach(function(e){
-						var abundance = (e.Value / summaryDataBySampleID.get(e.SampleID).get(variableUnit).sumNISP)*100;
-						e.Abundance = abundance;
-						e.NISPCount = e.Value;
-						d.maxAbundance < abundance ? d.maxAbundance = abundance : d.maxAbundance = d.maxAbundance;
+						var abundance = (e.value / summaryDataBySampleID.get(e.sampleid).get(variableUnit).sumnisp)*100;
+						e.abundance = abundance;
+						e.nispcount = e.value;
+						d.maxabundance < abundance ? d.maxabundance = abundance : d.maxabundance = d.maxabundance;
 						//track a maxValue for all numeric VariableUnits
-						d.maxValue = d.maxAbundance;
+						d.maxvalue = d.maxabundance;
 					})
 				})
 				break;
 			case "MNI":
 				filteredTaxaRenderObjects.forEach(function(d){
 					//calc maxAbundance for Taxon
-					d.countMNI = 0;
+					d.countmni = 0;
 					//pass EcolGroupID to container
-					d.EcolGroupID = d.values[0].EcolGroupID;
+					d.ecolgroupid = d.values[0].ecolgroupid;
 					d.values.forEach(function(e){
-						var mni = summaryDataBySampleID.get(e.SampleID).get(variableUnit).sumMNI;
+						var mni = summaryDataBySampleID.get(e.sampleid).get(variableUnit).summni;
 						//track a maxValue for all numeric VariableUnits
-						d.maxMNI < mni ? d.maxMNI = mni : d.maxMNI = d.maxMNI;
-						d.maxValue = mni;
+						d.maxmni < mni ? d.maxmni = mni : d.maxmni = d.maxmni;
+						d.maxvalue = mni;
 
 					})
 					
@@ -1036,7 +1042,7 @@
 			default:
 				filteredTaxaRenderObjects.forEach(function(d){
 					//pass EcolGroupID to container
-					d.EcolGroupID = d.values[0].EcolGroupID;
+					d.ecolgroupid = d.values[0].ecolgroupid;
 				})
 				break;
 		}
@@ -1079,16 +1085,16 @@
 
 
 	function setScales(){
-		if( metadata.yAxisUnitType == "Depth"){
-			strataYScale.domain(metadata.depthCollection.DepthExtent);
+		if( metadata.yaxisunittype == "Depth"){
+			strataYScale.domain(metadata.depthCollection.depthextent);
 		} else {
 
 			var currentAge = ageCollection.filter(function(d){
-				return d.ChronologyName == metadata.yAxisDomainName;
+				return d.chronologyname == metadata.yaxisdomainname;
 			})
 
 			if(currentAge.length > 0){
-				var currentAgeExtent = currentAge[0].AgeExtent;
+				var currentAgeExtent = currentAge[0].ageextent;
 				strataYScale.domain(currentAgeExtent);
 			}
 		}
@@ -1126,7 +1132,7 @@
 	    	var domainObj = yDomainStore.get(yDomainName);
 	    	var label = domainObj.UnitType;
 		*/
-	    	var label = metadata.yAxisLabel;
+	    	var label = metadata.yaxislabel;
 
 
 		    //add y-axis label
@@ -1162,23 +1168,23 @@
 	        //set default YAxis values
 	        //precedence: 1) has DefaultChronID, 2) has Depth, 3) first ageCollection member 
 
-	        if(metadata.DefChronologyID){
+	        if(metadata.defchronologyid){
 	        	var defaultAge = ageCollection.filter(function(d){
-	        		return d.ChronologyID == metadata.DefChronologyID;
+	        		return d.chronologyid == metadata.defchronologyid;
 	        	});
-	        	metadata.DefChronologyName = defaultAge[0].ChronologyName;
+	        	metadata.defchronologyname = defaultAge[0].chronologyname;
 	        	
 	        	//update demo control selection
 	        	var fsYAxisDomain = registry.byId("fsSelectYAxis");
 	        	var fsYAxisDomainStore = fsYAxisDomain.get("store");
-	        	var storeObj = fsYAxisDomainStore.get(defaultAge[0].ChronologyName);
+	        	var storeObj = fsYAxisDomainStore.get(defaultAge[0].chronologyname);
 	        	if(storeObj){
-	        		setYAxisDomain(storeObj.DomainName);
-	        		fsYAxisDomain.set("value", storeObj.DomainName);
+	        		setYAxisDomain(storeObj.domainname);
+	        		fsYAxisDomain.set("value", storeObj.domainname);
 	        	}
 	        	
 	        	//may have null depthCollection values
-	        } else if (metadata.depthCollection.DepthExtent[0]) {
+	        } else if (metadata.depthCollection.depthextent[0]) {
 	        	console.log("setting default Y Axis domain as Depth")
 	        	//update demo control selection
 	        	var fsYAxisDomain = registry.byId("fsSelectYAxis");
@@ -1229,13 +1235,13 @@
 	        taxaline5x = d3.line()
 	          .defined(function(d){ return d;})
 	          .x(function (d) {
-	              return strataXScale(d[metadata.xScaleInput] * 5); 
+	              return strataXScale(d[metadata.xscaleinput] * 5); 
 	          })
 	          .y(function(d) { 
 	              //return strataYScale(d.depth);
 	              var depth;
 	              //depth = strataYScale(lookupYValueBySampleID(d.SampleID));
-	              depth = strataYScale(lookupYValueBySampleID(d.SampleID));
+	              depth = strataYScale(lookupYValueBySampleID(d.sampleid));
 	              return depth;
 
 	          });
@@ -1243,13 +1249,13 @@
 	        taxaline = d3.line()
 	        	.defined(function(d){ return d;})
 	        	.x(function(d){
-	        		return strataXScale(d[metadata.xScaleInput]);
+	        		return strataXScale(d[metadata.xscaleinput]);
 	        	})
 	        	.y(function(d){
 	        		var depth;
 	              //depth = strataYScale(lookupYValueBySampleID(d.SampleID));
 	              //console.log(d.TaxonName +"|"+d.SampleID +" | " + lookupYValueBySampleID(d.SampleID) +" | " + strataYScale(lookupYValueBySampleID(d.SampleID)) );
-	              depth = strataYScale(lookupYValueBySampleID(d.SampleID));
+	              depth = strataYScale(lookupYValueBySampleID(d.sampleid));
 	              return depth;
 	        	})
 
@@ -1321,25 +1327,25 @@
     	//if( metadata.yAxisDomainName != value ){
     		//y axis is depth
     		if (value == "Depth"){
-	        	metadata.yAxisLabel = "cm";
-	        	metadata.yAxisUnitType = "Depth";
-	        	metadata.yAxisDomainName = "Depth";
-	        	metadata.yAxisDomainExtent = metadata.depthCollection.DepthExtent;//depthExtent;
-	        	metadata.yAxisDepthLookupFunction = metadata.depthCollection.DepthLookup;//sampleDepths;
+	        	metadata.yaxislabel = "cm";
+	        	metadata.yaxisunittype = "Depth";
+	        	metadata.yaxisdomainname = "Depth";
+	        	metadata.yaxisdomainextent = metadata.depthcollection.depthextent;//depthExtent;
+	        	metadata.yaxisdepthlookupfunction = metadata.depthcollection.depthlookup;//sampleDepths;
 	        	//metadata.yAxisAgeLookupFunction = null;
     		} else 
     		//y axis is age
     		{
     			var selectedAge = ageCollection.filter(function(d){
-    				return d.ChronologyName == value;
+    				return d.chronologyname == value;
     			})
     			var ageObj = selectedAge[0];
-    			metadata.yAxisLabel = ageObj.AgeType;
-	        	metadata.yAxisUnitType = "Age";
-	        	metadata.yAxisDomainName = ageObj.ChronologyName;
-	        	metadata.yAxisDomainExtent = ageObj.AgeExtent;
+    			metadata.yaxislabel = ageObj.agetype;
+	        	metadata.yaxisunittype = "Age";
+	        	metadata.yaxisdomainname = ageObj.chronologyname;
+	        	metadata.yaxisdomainextent = ageObj.ageextent;
 	        	//metadata.yAxisDepthLookupFunction = null;
-	        	metadata.yAxisAgeLookupFunction = ageObj.AgeLookup;
+	        	metadata.yaxisagelookupfunction = ageObj.agelookup;
     		}
 
     		//set yAxis lookup function
@@ -1355,33 +1361,33 @@
 
     function setYLookupFunction(value){
     	if(value == "Depth"){
-    		metadata.yAxisLookupFunction = metadata.yAxisDepthLookupFunction;
+    		metadata.yaxislookupfunction = metadata.yaxisdepthlookupfunction;
     	} else {
-    		metadata.yAxisLookupFunction = metadata.yAxisAgeLookupFunction;
+    		metadata.yaxislookupfunction = metadata.yaxisagelookupfunction;
     	}
     	
     }
 
     function setCurrentTopX(value){
     	currentTopX = value;
-    	metadata.currentTopX = value;
+    	metadata.currenttopx = value;
     }
 
     
     //if Age lookup and no Age value, use MeanAge
     function lookupYValueBySampleID(SampleID){
     	//if age map, values are age objects w/ younger, age, older values
-    	if(metadata.yAxisDomainName == "Depth"){
-    		return metadata.yAxisLookupFunction.get(SampleID);
+    	if(metadata.yaxisdomainname == "Depth"){
+    		return metadata.yaxislookupfunction.get(SampleID);
     	} else {
 
-	    	var ageObj = metadata.yAxisLookupFunction.get(SampleID);
+	    	var ageObj = metadata.yaxislookupfunction.get(SampleID);
 	    	var returnValue;
-	    	if(ageObj.Age){
-	    		returnValue = ageObj.Age;
+	    	if(ageObj.age){
+	    		returnValue = ageObj.age;
 	    	} else {
 	    		//ageObj.AgeYounger != null ? returnValue = ageObj.AgeYounger : returnValue = 0;
-	    		returnValue = ageObj.AgeMean;
+	    		returnValue = ageObj.agemean;
 	    	}
 			return returnValue;
 		}
@@ -1493,7 +1499,7 @@
 			})
 			.style("width", function(d, i){
 				//generalize: all measures --> maxValue (instead of d.maxAbundance)
-				var taxonChartWidth = calcChartWidth(d.maxValue, metadata.variableUnit);
+				var taxonChartWidth = calcChartWidth(d.maxvalue, metadata.variableunit);
 				//omit margin for y-axis if not first chart
 				if(i === 0){
 				  return taxonChartWidth + margin.left + chartGapRight+"px"; //+ margin.right;
@@ -1507,7 +1513,7 @@
 			.attr("class","x-axis-label")
 			.html(function(d){
 				//var variableUnits = getCurrentVariableUnits();
-				var variableUnit = metadata.variableUnit;
+				var variableUnit = metadata.variableunit;
 				var label;
 				switch(variableUnit){
 					case "NISP":
@@ -1562,7 +1568,7 @@
 					return className + " taxa-chart";
 				})
 				.attr("width", function(d, i){
-					  var taxonChartWidth = calcChartWidth(d.maxValue, metadata.variableUnit);
+					  var taxonChartWidth = calcChartWidth(d.maxvalue, metadata.variableunit);
 					  //omit margin for y-axis if not first chart
 	                  if(i === 0){
 	                      return taxonChartWidth + margin.left + chartGapRight; //+ margin.right;
@@ -1592,7 +1598,7 @@
 	        var taxaGroup = chartComponents.append("g")
 	                .attr("class", "g-taxa-group")
 	                .style("width", function(d){
-	                    var taxonChartWidth = calcChartWidth(d.maxValue, metadata.variableUnit);
+	                    var taxonChartWidth = calcChartWidth(d.maxvalue, metadata.variableunit);
 	                    return taxonChartWidth;
 	                });
 
@@ -1606,29 +1612,29 @@
 		          .attr("x",0)
 		          .attr("y", 0)
 		          .attr("width", function(d){
-		          	return calcChartWidth(d.maxValue, metadata.variableUnit);
+		          	return calcChartWidth(d.maxvalue, metadata.variableunit);
 		          })
 		          .attr("height", height)  
 
 	/** 5x Area Chart **/
-	if(metadata.chartTypeSelection == "FilledArea"){
+	if(metadata.charttypeselection == "FilledArea"){
 	        var exagPaths = taxaGroup.append("path")
 	                .attr("clip-path",function(d){
 	                	return "url(#clip-"+getCleanTaxonName(d.key)+")";
 	            	})
 	                .attr("class", function(d) { 
-	                    return d.EcolGroupID + " exaggerate-5x area";
+	                    return d.ecolgroupid + " exaggerate-5x area";
 	                })
 	                .attr("d", function (d) {
-	                	strataXScale.range(calcChartRange(d.maxAbundance));
-	          	  		strataXScale.domain(calcChartDomain(d.maxAbundance));
+	                	strataXScale.range(calcChartRange(d.maxabundance));
+	          	  		strataXScale.domain(calcChartDomain(d.maxabundance));
 	                	return taxaarea5x(d.values);
 	                })
 	                .style("fill",function(d,i){
 			          	//only vertebrate fauna are styled here, the rest use CSS
-	          			if(metadata.datasetType == "vertebrate fauna"){
-				          	if(d.EcolGroupID && metadata.allEcolGroupIDs){
-				          		return colors20(metadata.allEcolGroupIDs.indexOf(d.EcolGroupID));
+	          			if(metadata.datasettype == "vertebrate fauna"){
+				          	if(d.ecolgroupid && metadata.allecolgroupids){
+				          		return colors20(metadata.allecolgroupids.indexOf(d.ecolgroupid));
 				          	} else {
 				          		return '#dddddd';
 			          		}
@@ -1642,21 +1648,21 @@
 	       
 	        var paths = taxaGroup.append("path")
 	                .attr("class", function(d) { 
-	                    return d.EcolGroupID + " standard-scale area";
+	                    return d.ecolgroupid + " standard-scale area";
 	                })
 	                .attr("d", function(d) {
 	                	//strataXScale.range(calcChartRange(d.maxAbundance));
 	          	  		//strataXScale.domain(calcChartDomain(d.maxAbundance));
 	                	//return taxaarea(d.values);
-	                	strataXScale.range(calcChartRange(d.maxValue));
-		          	  	strataXScale.domain(calcChartDomain(d.maxValue));
+	                	strataXScale.range(calcChartRange(d.maxvalue));
+		          	  	strataXScale.domain(calcChartDomain(d.maxvalue));
 	                	return taxaarea(d.values); 
 	                })
 	                .style("fill",function(d,i){
 	                	//only vertebrate fauna are styled here, the rest use CSS
-	          			if(metadata.datasetType == "vertebrate fauna"){
-				          	if(d.EcolGroupID && metadata.allEcolGroupIDs){
-				          		return colors20(metadata.allEcolGroupIDs.indexOf(d.EcolGroupID));
+	          			if(metadata.datasettype == "vertebrate fauna"){
+				          	if(d.ecolgroupid && metadata.allecolgroupids){
+				          		return colors20(metadata.allecolgroupids.indexOf(d.ecolgroupid));
 				          	} else {
 				          		return '#dddddd';
 			          		}
@@ -1666,39 +1672,39 @@
 	          		})
 	}
 	/** Standard Scale Bar Chart */
-	if(metadata.chartTypeSelection == "BarChart"){
+	if(metadata.charttypeselection == "BarChart"){
 	        var bars = taxaGroup.append("g")
 	          .attr("class", function(d) {
-	              return "g-points "+d.EcolGroupID;
+	              return "g-points "+d.ecolgroupid;
 	          })
 	          .selectAll("rect")
 	          .data(function(d){
-		          	  strataXScale.range(calcChartRange(d.maxValue));
-		          	  strataXScale.domain(calcChartDomain(d.maxValue));
+		          	  strataXScale.range(calcChartRange(d.maxvalue));
+		          	  strataXScale.domain(calcChartDomain(d.maxvalue));
 		              return d.values;
 	          		}, function(d){
-	          			return d.TaxonName;
+	          			return d.taxonname;
 	          })
 	          .enter()
 	          .append("rect")
 	          .attr("class",function(d,i){  
-	          	return d.EcolGroupID +" standard-scale rect";
+	          	return d.ecolgroupid +" standard-scale rect";
 	          })
 	          .attr("width", function(d){
-	          	  console.log("value: "+d.Value+" | metadata.xScaleInput: "+ metadata.xScaleInput + " | "+d[metadata.xScaleInput]);
-	          	  return strataXScale(d[metadata.xScaleInput]);
+	          	  //console.log("value: "+d.value+" | metadata.xscaleinput: "+ metadata.xscaleinput + " | "+d[metadata.xscaleinput]);
+	          	  return strataXScale(d[metadata.xscaleinput]);
 	          })
 	          //.attr("cy", lang.hitch(this,function(d){
 	          .attr("y", function(d){
-	              return strataYScale(lookupYValueBySampleID(d.SampleID)) - 2/2; 
+	              return strataYScale(lookupYValueBySampleID(d.sampleid)) - 2/2; 
 	          })
 	          .attr("x",0)
 	          .attr("height",2)
 	          .style("fill",function(d,i){
 	          	//only vertebrate fauna are styled here, the rest use CSS
-	          	if(metadata.datasetType == "vertebrate fauna"){
-		          	if(d.EcolGroupID && metadata.allEcolGroupIDs){
-		          		return colors20(metadata.allEcolGroupIDs.indexOf(d.EcolGroupID));
+	          	if(metadata.datasettype == "vertebrate fauna"){
+		          	if(d.ecolgroupid && metadata.allecolgroupids){
+		          		return colors20(metadata.allecolgroupids.indexOf(d.ecolgroupid));
 		          	} else {
 		          		return '#dddddd';
 		          	}
@@ -1708,10 +1714,10 @@
 	          })
 	}
 	/** Symbol Plot **/
-	if(metadata.chartTypeSelection == "SymbolPlot"){ 
+	if(metadata.charttypeselection == "SymbolPlot"){ 
 	        var symbols = taxaGroup.append("g")
 	          .attr("class", function(d) {
-	              return "g-symbols "+d.EcolGroupID;
+	              return "g-symbols "+d.ecolgroupid;
 	          })
 	          .selectAll("cross")
 	          .data(function(d){
@@ -1720,15 +1726,15 @@
 		          	  strataXScale.domain([0,1]);
 		              return d.values;
 	          		}, function(d){
-	          			return d.TaxonName;
+	          			return d.taxonname;
 	          })
 	          .enter()
 	          .append("path")
 	          .attr("class",function(d,i){  
-	          	return d.EcolGroupID +" standard-scale";
+	          	return d.ecolgroupid +" standard-scale";
 	          })
 			  .attr("transform", function(d){
-	                return "translate("+strataXScale(0.5)+","+strataYScale(lookupYValueBySampleID(d.SampleID))+")";
+	                return "translate("+strataXScale(0.5)+","+strataYScale(lookupYValueBySampleID(d.sampleid))+")";
 	          })
 	          .attr("d", symbolRenderer)
 	          	//function(d){
@@ -1740,9 +1746,9 @@
 	          //})
 	          .style("fill",function(d,i){
 	          		//only vertebrate fauna are styled here, the rest use CSS
-	          	if(metadata.datasetType == "vertebrate fauna"){
-		          	if(d.EcolGroupID && metadata.allEcolGroupIDs){
-		          		return colors20(metadata.allEcolGroupIDs.indexOf(d.EcolGroupID));
+	          	if(metadata.datasettype == "vertebrate fauna"){
+		          	if(d.ecolgroupid && metadata.allecolgroupids){
+		          		return colors20(metadata.allecolgroupids.indexOf(d.ecolgroupid));
 		          	} else {
 		          		return '#dddddd';
 		          	}
@@ -1751,7 +1757,7 @@
 	          	}
 	          })
 	          .attr("id", function(d,i){
-	                return "id_"+d.SampleID;
+	                return "id_"+d.sampleid;
 	          })
 			  .on("mouseout", function(d){
 				      tooltip.transition().duration(500).style("opacity", 0);                       
@@ -1769,32 +1775,32 @@
 	}
 
 	/**Numeric Data - Mouseover Point Display **/
-	if(metadata.chartTypeSelection != "SymbolPlot"){
+	if(metadata.charttypeselection != "SymbolPlot"){
 	        taxaGroup.append("g")
 	          .attr("class", function(d) {
-	              return "g-points "+d.EcolGroupID;
+	              return "g-points "+d.ecolgroupid;
 	          })
 	          .selectAll("circle")
 	          .data(function(d){
-	          	  strataXScale.range(calcChartRange(d.maxValue));
-	          	  strataXScale.domain(calcChartDomain(d.maxValue));	
+	          	  strataXScale.range(calcChartRange(d.maxvalue));
+	          	  strataXScale.domain(calcChartDomain(d.maxvalue));	
 
 	          	  //strataXScale.range(calcChartRange(d.maxAbundance));
 	          	  //strataXScale.domain(calcChartDomain(d.maxAbundance));
 	              return d.values;
 	          }, function(d){
-	          	return d.TaxonName;
+	          	return d.taxonname;
 	          })
 	          .enter()
 	          .append("circle")
 	          .attr("class",function(d,i){  
-	          	return d.EcolGroupID;
+	          	return d.ecolgroupid;
 	          })
 	          .style("fill",function(d,i){
 	          	//only vertebrate fauna are styled here, the rest use CSS
 	          	if(metadata.datasetType == "vertebrate fauna"){
-			         if(d.EcolGroupID && metadata.allEcolGroupIDs){
-			          		return colors20(metadata.allEcolGroupIDs.indexOf(d.EcolGroupID));
+			         if(d.ecolgroupid && metadata.allecolgroupids){
+			          		return colors20(metadata.allecolgroupids.indexOf(d.ecolgroupid));
 			         } else {
 			          		return '#dddddd';
 			         }
@@ -1803,11 +1809,11 @@
 	      		}
 	      	  })	
 	          .attr("cx", function(d){
-	          	  return strataXScale(d[metadata.xScaleInput]);
+	          	  return strataXScale(d[metadata.xscaleinput]);
 	          })
 	          //.attr("cy", lang.hitch(this,function(d){
 	          .attr("cy", function(d){
-	              return strataYScale(lookupYValueBySampleID(d.SampleID));
+	              return strataYScale(lookupYValueBySampleID(d.sampleid));
 	          })
 	          .attr("r",0)
 	          .on("mouseout", function(d){
@@ -1838,42 +1844,42 @@
         	
         	//cases differ for variableUnit
         	//cases differ for species and 'Other' aggregates
-        	var labelType = metadata.variableUnit;
+        	var labelType = metadata.variableunit;
 
         	if(labelType){
         		switch(labelType){
         			case "NISP":
-        				metadata.variableUnit = "NISP";
-			        	metadata.yAxisLabel = "Radiocarbon Years BP";
-			        	metadata.yAxisUnitType = "Age";
-			        	metadata.yAxisCollection = ageCollection[0];
+        				metadata.variableunit = "NISP";
+			        	metadata.yaxislabel = "Radiocarbon Years BP";
+			        	metadata.yaxisunittype = "Age";
+			        	metadata.yaxiscollection = ageCollection[0];
 			        	
 
-			        	var pctLabel = d3.format(".1%")(ptdata.Abundance/100);
+			        	var pctLabel = d3.format(".1%")(ptdata.abundance/100);
 			        	var cntLabel;
-			        	if(ptdata.NISPCount){
-			        		cntLabel = d3.format("c")(ptdata.NISPCount); //integer
+			        	if(ptdata.nispcount){
+			        		cntLabel = d3.format("c")(ptdata.nispcount); //integer
 			        	} else {
-			        		cntLabel = d3.format("c")(ptdata.Value); //integer
+			        		cntLabel = d3.format("c")(ptdata.value); //integer
 			        	}
 			        	var html = "";
-			        	if(ptdata.EcolGroupID){
-			        		var taxonName = ptdata.TaxonName ? " | " +  ptdata.TaxonName : " | (multiple)";
-			        		html = "<h3>"+ptdata.EcolGroupID+ taxonName + "</h3><br>";
+			        	if(ptdata.ecolgroupid){
+			        		var taxonName = ptdata.taxonname ? " | " +  ptdata.taxonname : " | (multiple)";
+			        		html = "<h3>"+ptdata.ecolgroupid+ taxonName + "</h3><br>";
 			        	}
-			        	html += "<span>"+ptdata.SampleID +"<span><br>";
-			        	html += "<span>"+metadata.yAxisUnitType +": "+ lookupYValueBySampleID(ptdata.SampleID) + " " +metadata.yAxisLabel + "</span><br>";
+			        	html += "<span>"+ptdata.sampleid +"<span><br>";
+			        	html += "<span>"+metadata.yaxisunittype +": "+ lookupYValueBySampleID(ptdata.sampleid) + " " +metadata.yaxislabel + "</span><br>";
 			        	html += "<span>Pct: "+pctLabel + "</span><br>";
         				html += "<span>Total Count: " + cntLabel + "</span><br>";
         				break;
         			default:
         				var html ="";
-        				if(ptdata.EcolGroupID){
-        					var taxonName = ptdata.TaxonName ? " | " + ptdata.TaxonName : " | (multiple)";
-			        		html = "<h3>"+ptdata.EcolGroupID+ taxonName + "</h3><br>";
+        				if(ptdata.ecolgroupid){
+        					var taxonName = ptdata.taxonname ? " | " + ptdata.taxonname : " | (multiple)";
+			        		html = "<h3>"+ptdata.ecolgroupid+ taxonName + "</h3><br>";
 			        	}
-        				html += "<span>"+ptdata.SampleID +"<span><br>";
-			        	html += "<span>"+metadata.yAxisUnitType +": "+ lookupYValueBySampleID(ptdata.SampleID) + " " +metadata.yAxisLabel + "</span><br>";
+        				html += "<span>"+ptdata.sampleid +"<span><br>";
+			        	html += "<span>"+metadata.yaxisunittype +": "+ lookupYValueBySampleID(ptdata.sampleid) + " " +metadata.yaxislabel + "</span><br>";
 			     		//html += "<span>Value: " + ptdata.Value + "</span><br>";
 			     		break;   	
         		}
@@ -1892,11 +1898,11 @@
             .attr("class","x axis bottom")
             .each(function(d,i){
             	//strataXScale.range(calcChartRange(d.maxAbundance));
-            	strataXScale.range(calcChartRange(d.maxValue));
+            	strataXScale.range(calcChartRange(d.maxvalue));
           	  	//strataXScale.domain(calcChartDomain(d.maxAbundance));
-          	  	strataXScale.domain(calcChartDomain(d.maxValue));
+          	  	strataXScale.domain(calcChartDomain(d.maxvalue));
           	  	//var intervals = Math.ceil(d.maxAbundance/5);
-          	  	var intervals = Math.ceil(d.maxValue/5);
+          	  	var intervals = Math.ceil(d.maxvalue/5);
           	  	abundAxisBottom.tickValues(calcTickMarks(intervals));
           	  	d3.select(this).call(abundAxisBottom);
             })
@@ -1908,11 +1914,11 @@
             .attr("class","x axis top")
             .each(function(d,i){
             	//strataXScale.range(calcChartRange(d.maxAbundance));
-            	strataXScale.range(calcChartRange(d.maxValue));
+            	strataXScale.range(calcChartRange(d.maxvalue));
           	  	//strataXScale.domain(calcChartDomain(d.maxAbundance));
-          	  	strataXScale.domain(calcChartDomain(d.maxValue));
+          	  	strataXScale.domain(calcChartDomain(d.maxvalue));
           	  	//var intervals = Math.ceil(d.maxAbundance/5);
-          	  	var intervals = Math.ceil(d.maxValue/5);
+          	  	var intervals = Math.ceil(d.maxvalue/5);
           	  	abundAxisBottom.tickValues(calcTickMarks(intervals));
           	  	d3.select(this).call(abundAxisBottom);
             })
@@ -1999,7 +2005,7 @@
     	
         var extent;
 
-		extent = metadata.yAxisDomainExtent;
+		extent = metadata.yaxisdomainextent;
                     
         strataYScale.domain(extent);
 
@@ -2015,7 +2021,7 @@
 
 
 
-       if(metadata.chartTypeSelection == "FilledArea"){
+       if(metadata.charttypeselection == "FilledArea"){
         //redraw lines
         var exagPaths = d3.selectAll("path.exaggerate-5x")               
               .transition().duration(500) 
@@ -2033,24 +2039,24 @@
           .selectAll("circle")    
           .attr("cy", function(d){        
               var yPosition;
-              yPosition = strataYScale(lookupYValueBySampleID(d.SampleID));
+              yPosition = strataYScale(lookupYValueBySampleID(d.sampleid));
               return yPosition;       
           });
         }
 
-        if(metadata.chartTypeSelection == "BarChart"){
+        if(metadata.charttypeselection == "BarChart"){
         	var rects = d3.selectAll("rect")
 	          .attr("width", function(d){
-	          	  console.log("value: "+d.Value+" | metadata.xScaleInput: "+ metadata.xScaleInput + " | "+d[metadata.xScaleInput]);
-	          	  return strataXScale(d[metadata.xScaleInput]);
+	          	  console.log("value: "+d.value+" | metadata.xscaleinput: "+ metadata.xscaleinput + " | "+d[metadata.xscaleinput]);
+	          	  return strataXScale(d[metadata.xscaleinput]);
 	          })
 	          //.attr("cy", lang.hitch(this,function(d){
 	          .attr("y", function(d){
-	              return strataYScale(lookupYValueBySampleID(d.SampleID)) - 2/2; 
+	              return strataYScale(lookupYValueBySampleID(d.sampleid)) - 2/2; 
 	          })
         }
 
-        if(metadata.chartTypeSelection == "Symbol Plot"){
+        if(metadata.charttypeselection == "Symbol Plot"){
         	console.log("plot symbols");
         }
         //check if 5x should be drawn  
@@ -2060,23 +2066,27 @@
         //var firstChart = d3.select(".y-axis-label")
 
         var firstChart = d3.select(".y-axis-label")
-          .text(metadata.yAxisLabel);
+          .text(metadata.yaxislabel);
     }
 
 	//apiDownloadDataset(defaultDatasetID);
 	
 	////////setDefaultSelection();
 	function handleFormChange(evt){
-		require(["dijit/form/Form", "dijit/registry"],function(Form, registry){
-			var interactionForm = registry.byId("interactionForm");
-			var currentSelections = interactionForm.get("value");
-			//set charttype selection on metadata
-			metadata.chartTypeSelection = currentSelections.chartTypeRadioButtons;
+		//handle new selections only, ignore deselected evts: evt == false
+		if (evt){
+			console.log("handleFormChange evt", evt);
+			require(["dijit/form/Form", "dijit/registry"],function(Form, registry){
+				var interactionForm = registry.byId("interactionForm");
+				var currentSelections = interactionForm.get("value");
+				//set charttype selection on metadata
+				metadata.charttypeselection = currentSelections.chartTypeRadioButtons;
 
-			if(initialized){
-				updateChart();
-			}
-		})
+				if(initialized){
+					updateChart();
+				}
+			})
+		}
 	}
 
 	function testHandler(evt){

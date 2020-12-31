@@ -118,11 +118,11 @@ function updateVariableUnitFilteringSelect(unitsArray){
 		//create pseudo age for depth to add to variableUnitCollection
 		unitsArray.forEach(function(d){
 			var unitObj = {};
-			unitObj.VariableUnits = d;
+			unitObj.variableunits = d;
 			variableUnitCollection.push(unitObj);
 		})
 		
-		varUnitStore = new Memory({data: variableUnitCollection, idProperty: "VariableUnits"});
+		varUnitStore = new Memory({data: variableUnitCollection, idProperty: "variableunits"});
 
 		varUnitfs.set("store", varUnitStore);
 
@@ -226,7 +226,7 @@ function createLegend(data){
 			.enter()
 			.append("g")
 			.attr("class",function(d){
-				return "entry "+d.EcolGroupID;
+				return "entry "+d.ecolgroupid;
 			})
 	     	.attr("transform",function(d,i){
 	     		return "translate(0," + (i*(symHt+10)) + ")";
@@ -246,7 +246,7 @@ function createLegend(data){
 			.attr("transform","translate(-10,0)")
 			.style("fill",function(d,i){
 				//return colors20(i);
-				var c = colorMap[d.EcolGroupID];
+				var c = colorMap[d.ecolgroupid];
 				if(c){
 					return c;
 				} else {
@@ -267,7 +267,7 @@ function createLegend(data){
 			})
 			.attr("transform","translate(10,0)")
 			.style("fill",function(d,i){
-				var c = colorMap[d.EcolGroupID];
+				var c = colorMap[d.ecolgroupid];
 				if(c){
 					return c;
 				} else {
@@ -297,7 +297,7 @@ function createLegend(data){
 
 	var labels = lgd.append("text")
 		.text(function(d){
-			return d.EcolGroupID;//"label"
+			return d.ecolgroupid;//"label"
 		})
 		.attr("transform","translate(15,5)");
 }

@@ -36,39 +36,40 @@ function setVariableUnit(value){
 		if(!value){
 			//todo: set default variableUnit by preference rules 
 			//check if NISP values exist
-			var found = metadata.allVarUnits.find(function(d){
+			var found = metadata.allvarunits.find(function(d){
 				return d == "NISP"})
 			//set variable to NISP if available, else first one found
-			found ? metadata.variableUnit = "NISP" : metadata.variableUnit = metadata.allVarUnits[0]; 
+			found ? metadata.variableunit = "NISP" : metadata.variableunit = metadata.allvarunits[0]; 
 		} else {
-			metadata.variableUnit = value;
+			metadata.variableunit = value;
 		}
 
 		/////metadata.variableUnit = "NISP";
-		metadata.xScaleInput = "Value";
+		metadata.xscaleinput = "value";
 
 		//set x-axis-label by variableunit
-		switch(metadata.variableUnit){
+		switch(metadata.variableunit){
 			//number of individual specimens
 			case "NISP":
-				metadata.xScaleInput = "Abundance";
+				metadata.xscaleinput = "abundance";
 				break;
 			case "valves/g":
-				metadata.xScaleInput = "valves/g";
+				//todo, should use "concentration"
+				metadata.xscaleinput = "valves/g";
 				break;
 			case "present/absent":
-				metadata.xScaleInput = "Presence";
+				metadata.xscaleinput = "presence";
 				break;
 			//minimum number of individuals
 			case "MNI":
-				metadata.xScaleInput = "Value";
+				metadata.xscaleinput = "value";
 				break;
 			case "Spaulding scale":
-				metadata.xScaleInput = "Spaulding scale";
+				metadata.xscaleinput = "spaulding scale";
 				break;	
 			default:
 				console.log("Error: VariableUnit not set; default NISP");
-				metadata.xScaleInput = "Abundance";
+				metadata.xscaleinput = "abundance";
 				break;
 
 		}
