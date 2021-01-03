@@ -935,7 +935,7 @@
 
     	//insure samples are sorted ascending
     	//if Vertebrate Fauna, order by AgeYounger-- samples are not in chronological order
-    	if(metadata.datasetType == "vertebrate fauna"){
+    	if(metadata.datasettype == "vertebrate fauna"){
     		//order by age, not sampleid
 			nonNullEcoGrpRenderObjects.forEach(function(d){
 	    		d.values = d.values.sort(sortByAgeYounger);
@@ -1086,7 +1086,7 @@
 
 	function setScales(){
 		if( metadata.yaxisunittype == "Depth"){
-			strataYScale.domain(metadata.depthCollection.depthextent);
+			strataYScale.domain(metadata.depthcollection.depthextent);
 		} else {
 
 			var currentAge = ageCollection.filter(function(d){
@@ -1184,7 +1184,7 @@
 	        	}
 	        	
 	        	//may have null depthCollection values
-	        } else if (metadata.depthCollection.depthextent[0]) {
+	        } else if (metadata.depthcollection.depthextent[0]) {
 	        	console.log("setting default Y Axis domain as Depth")
 	        	//update demo control selection
 	        	var fsYAxisDomain = registry.byId("fsSelectYAxis");
@@ -1798,7 +1798,7 @@
 	          })
 	          .style("fill",function(d,i){
 	          	//only vertebrate fauna are styled here, the rest use CSS
-	          	if(metadata.datasetType == "vertebrate fauna"){
+	          	if(metadata.datasettype == "vertebrate fauna"){
 			         if(d.ecolgroupid && metadata.allecolgroupids){
 			          		return colors20(metadata.allecolgroupids.indexOf(d.ecolgroupid));
 			         } else {
