@@ -292,7 +292,7 @@
     	});
 	}
 
-	var apiURL = "//localhost:3010/v1.5/data/Downloads/"
+	var apiURL = "https://api.neotomadb.org/v1.5/data/Downloads/"
 	function apiDownloadDataset(datasetid){
 		d3.json(apiURL+datasetid+"?", handleResult);
 		//.mimeType("application/json")
