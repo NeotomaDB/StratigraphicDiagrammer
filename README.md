@@ -1,6 +1,6 @@
 <!-- badges: start -->
 
-[![lifecycle](https://img.shields.io/badge/lifecycle-archived-orange.svg)](https://www.tidyverse.org/lifecycle/#archived)
+[![lifecycle](https://img.shields.io/badge/lifecycle-archived-orange.svg)]
 
 <!-- badges: end -->
 
